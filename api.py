@@ -25,7 +25,7 @@ class youtube_statistics:
     def get_channel_video_data(self):
         channel_videos = self.get_channel_videos(limit=50)
         print(len(channel_videos))
-        parts = ['snippet','statistics','contentDetails']
+        parts = ['statistics','contentDetails']
         for video_id in tqdm(channel_videos):
             for part in parts:
                 data = self.get_single_video_data(video_id, part)
@@ -75,7 +75,7 @@ class youtube_statistics:
                 print('error')
         return channel_video, nextPageToken 
 
-    def dump(self):
+    '''def dump(self):
         if self.channel_statistics is None or self.video_data is None:
             print('data is missing!\nCall get_channel_statistics() and get_channel_video_data() first!')
             return
@@ -86,4 +86,17 @@ class youtube_statistics:
         with open(filename, 'w') as f:
             json.dump(fused_data, f, indent=4)
         
+        print('file dumped to', filename)'''
+    
+    def dump(self):
+        if self.channel_statistics is None or self.video_data is None:
+            print('data is missing!\nCall get_channel_statistics() and get_channel_video_data() first!')
+            return
+        #fused_data = {self.channel_id: {"channel_statistics": self.channel_statistics,"video_data": self.video_data}}
+        fused_data = {self.channel_id: {"video_data": self.video_data}}
+        channel_title = (self.video_data.popitem()[1].get('channelTitle', self.channel_id))
+        channel_title = channel_title.replace(" ", "_").lower()
+        filename = channel_title + '.json'
+        webhook_url = "https://webhook.site/64b3365f-cd55-4e84-9136-805268c12c4a"
+        r = requests.post(webhook_url, data = json.dumps(fused_data), headers={'Content-Type': 'application/json'})
         print('file dumped to', filename)
