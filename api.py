@@ -1,6 +1,8 @@
 import requests
 import json
 from tqdm import tqdm
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 class youtube_statistics:
 
     def __init__(self, api_key, channel_id):
@@ -75,7 +77,7 @@ class youtube_statistics:
                 print('error')
         return channel_video, nextPageToken 
 
-    '''def dump(self):
+    def dump(self):
         if self.channel_statistics is None or self.video_data is None:
             print('data is missing!\nCall get_channel_statistics() and get_channel_video_data() first!')
             return
@@ -83,12 +85,23 @@ class youtube_statistics:
         channel_title = (self.video_data.popitem()[1].get('channelTitle', self.channel_id))
         channel_title = channel_title.replace(" ", "_").lower()
         filename = channel_title + '.json'
+        print(fused_data)
         with open(filename, 'w') as f:
             json.dump(fused_data, f, indent=4)
         
-        print('file dumped to', filename)'''
+        print('file dumped to', filename)
+
+    '''def json_to_csv(self, data):
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("youtube").sheet1
+        i = 1
+        for item in data:
+            sheet.insert_row(data,1)
+            i += 1'''
     
-    def dump(self):
+    '''def dump(self):
         if self.channel_statistics is None or self.video_data is None:
             print('data is missing!\nCall get_channel_statistics() and get_channel_video_data() first!')
             return
@@ -97,6 +110,6 @@ class youtube_statistics:
         channel_title = (self.video_data.popitem()[1].get('channelTitle', self.channel_id))
         channel_title = channel_title.replace(" ", "_").lower()
         filename = channel_title + '.json'
-        webhook_url = "https://webhook.site/64b3365f-cd55-4e84-9136-805268c12c4a"
-        r = requests.post(webhook_url, data = json.dumps(fused_data), headers={'Content-Type': 'application/json'})
-        print('file dumped to', filename)
+        webhook_url = "https://wada7.domo.com/api/iot/v1/webhook/data/eyJhbGciOiJIUzI1NiJ9.eyJzdHJlYW0iOiI0MGIzOGY0Zjc5Mjk0OGVjODU0ZTEyODYzYWMwNWQxODp6enp6LTAwMDUtMjM1Mzo4NTI0Mzc4MSJ9.Ef4OtSylNSNqNqp2rCjghoWg4sw1rHZw1rXEGB09vPA"
+        r = requests.post(webhook_url, data = json.dumps(fused_data, indent=4), headers={'Content-Type': 'application/json'})
+        print('file dumped to', filename)'''
