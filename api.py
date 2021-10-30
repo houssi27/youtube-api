@@ -1,5 +1,6 @@
 import requests
 import json
+import pandas as pd
 from tqdm import tqdm
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -85,11 +86,30 @@ class youtube_statistics:
         channel_title = (self.video_data.popitem()[1].get('channelTitle', self.channel_id))
         channel_title = channel_title.replace(" ", "_").lower()
         filename = channel_title + '.json'
-        print(fused_data)
         with open(filename, 'w') as f:
             json.dump(fused_data, f, indent=4)
-        
+        self.json_edit(filename)
         print('file dumped to', filename)
+
+    def json_edit(self,filename):
+        scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
+        creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+        client = gspread.authorize(creds)
+        sheet = client.open("youtube").sheet1
+        data = pd.read_json(filename)
+        channel_statistics = data["UCE_M8A5yxnLfW0KghEeajjw"]['channel_statistics']
+        video_data = data["UCE_M8A5yxnLfW0KghEeajjw"]['video_data']
+        #print(list(list(video_data.values())[0].values()))
+        #sheet.insert_row(list(channel_statistics.values()),2)
+        i = 2
+        for item in video_data:
+            lista = list(list(video_data.values())[i-2].values())
+            lista[9] = None
+            fin = list(channel_statistics.values())+item.split()+lista
+            print(fin)
+            sheet.insert_row(fin,i)
+            i += 1
+    
 
     '''def json_to_csv(self, data):
         scope = ["https://spreadsheets.google.com/feeds",'https://www.googleapis.com/auth/spreadsheets',"https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
