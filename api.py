@@ -97,14 +97,18 @@ class youtube_statistics:
         client = gspread.authorize(creds)
         sheet = client.open("youtube").sheet1
         data = pd.read_json(filename)
-        channel_statistics = data["UCE_M8A5yxnLfW0KghEeajjw"]['channel_statistics']
-        video_data = data["UCE_M8A5yxnLfW0KghEeajjw"]['video_data']
+        channel_statistics = data["UC04FyDIvYXNecpbG8gyOw4A"]['channel_statistics']
+        video_data = data["UC04FyDIvYXNecpbG8gyOw4A"]['video_data']
         #print(list(list(video_data.values())[0].values()))
         #sheet.insert_row(list(channel_statistics.values()),2)
         i = 2
         for item in video_data:
             lista = list(list(video_data.values())[i-2].values())
-            lista[9] = None
+            j = 0
+            for item in lista:
+                if item == {}:
+                    lista[j] = None
+                j += 1
             fin = list(channel_statistics.values())+item.split()+lista
             print(fin)
             sheet.insert_row(fin,i)
